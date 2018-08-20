@@ -1,0 +1,63 @@
+<?php
+$string = file_get_contents("JSON.json");
+$json_data = json_decode($string, true);
+
+//print_r($json_data);
+
+$movieResult = array();
+
+for ($i=0;$i<count($json_data);$i++) {
+  $movieResult[$i]['title'] = $json_data[$i]['film'];
+  // 3 days
+  $movieResult[$i]['3days'] = $json_data[$i]['data'][3]['views'];    
+  $cnt = count($json_data[$i]['data']) - 1;
+  for ($j=0;$j<$cnt;$j++) {
+    // 7 weeks = -49
+    if ( $json_data[$i]['data'][$j]['days_to_release'] == -49 ) {
+      $movieResult[$i]['7weeks'] = $json_data[$i]['data'][$j]['views'];
+      break;
+    }
+    if (( $json_data[$i]['data'][$j]['days_to_release'] < -49 ) && ($json_data[$i]['data'][$cnt]['days_to_release'] < -49) ) {
+      $movieResult[$i]['7weeks'] = $json_data[$i]['data'][$cnt]['views'];
+      break;
+    }
+  }
+}
+
+//print_r($movieResult);
+
+# sort current list from highest to lowest 7weeks
+echo "Top 3 Movies\n";
+usort($movieResult, function($a,$b) {
+  return $a['7weeks'] > $b['7weeks'] ? -1 : 1;
+});
+for($i=0;$i<3;$i++) {
+  echo 'Film: ' . $movieResult[$i]['title'] . 'Total (7 weeks): ' . $movieResult[$i]['7weeks'] . "\n";
+}
+# sort current list from lowest to highest 7weeks
+echo "Worst 3 Movies\n";
+usort($movieResult, function($a,$b) {
+  return $a['7weeks'] < $b['7weeks'] ? -1 : 1;
+});
+for($i=0;$i<3;$i++) {
+  echo 'Film: ' . $movieResult[$i]['title'] . 'Total (7 weeks): ' . $movieResult[$i]['7weeks'] . "\n";
+}
+# sort current list from highest to lowest 3days
+echo "Top 3 Movies (3 days)\n";
+usort($movieResult, function($a,$b) {
+  return $a['3days'] > $b['3days'] ? -1 : 1;
+});
+for($i=0;$i<3;$i++) {
+  echo 'Film: ' . $movieResult[$i]['title'] . 'Total (7 weeks): ' . $movieResult[$i]['7weeks'] . "\n";
+}
+# sort current list from lowest to highest 7weeks
+echo "Worst 3 Movies (3 days)\n";
+usort($movieResult, function($a,$b) {
+  return $a['3days'] < $b['3days'] ? -1 : 1;
+});
+for($i=0;$i<3;$i++) {
+  echo 'Film: ' . $movieResult[$i]['title'] . 'Total (7 weeks): ' . $movieResult[$i]['7weeks'] . "\n";
+}
+
+
+?>
