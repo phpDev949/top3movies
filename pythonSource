@@ -1,0 +1,71 @@
+import json
+from pprint import pprint
+
+# bold and underline
+class color:
+   BOLD = '\033[1m'
+   UNDERLINE = '\033[4m'
+   END = '\033[0m'
+
+with open('JSON.json') as json_data:
+    d = json.load(json_data)
+    json_data.close()
+
+#print "Count of available movies: ", len(d)
+movieResult = []
+
+# create json for 3days, 7weeks, and title
+for i in range(0,len(d)):
+   info = {}
+   nm = len(d[i]['data']) - 1
+   info['title'] = d[i]['film']
+   if info not in movieResult:
+     movieResult.append(info)
+   for j in range(0,nm):
+     # 3 days 
+     info['3days'] = d[i]['data'][3]['views']
+     if info not in movieResult:
+       movieResult.append(info)
+     # 7 weeks = -49 
+     if (d[i]['data'][j]['days_to_release'] < -49) & (d[i]['data'][nm]['days_to_release'] < -49):
+       #print "Greater the 7 weeks to release: ", d[i]['data'][nm]['views']
+       info['7weeks'] = d[i]['data'][nm]['views']
+       if info not in movieResult:
+         movieResult.append(info)
+       break
+     if d[i]['data'][j]['days_to_release'] == -49:
+       #print "At 7 weeks to release: ", d[i]['data'][j]['views']
+       info['7weeks'] = d[i]['data'][j]['views']
+       if info not in movieResult:
+         movieResult.append(info)
+       break
+            
+#pprint(movieResult)
+
+# sort current list from highest to lowest 7weeks
+print color.BOLD + 'Top 3 Movies' + color.END 
+movieResult = sorted(movieResult, key=lambda k: k['7weeks'], reverse=True)
+#output result table
+for i in range(0,3):
+    print 'Film: ', movieResult[i]['title'], 'Total (7 weeks): ', movieResult[i]['7weeks']
+
+# sort current list from lowest to highest 7weeks
+print color.BOLD + 'Worst 3 Movies' + color.END 
+movieResult = sorted(movieResult, key=lambda k: k['7weeks'], reverse=False)
+#output result table
+for i in range(0,3):
+    print 'Film: ', movieResult[i]['title'], 'Total (7 weeks): ', movieResult[i]['7weeks']
+
+# sort current list from highest to lowest 3days
+print color.BOLD + 'Top 3 Movies (3 days)' + color.END 
+movieResult = sorted(movieResult, key=lambda k: k['3days'], reverse=True)
+#output result table
+for i in range(0,3):
+    print 'Film: ', movieResult[i]['title'], 'Total (3 days): ', movieResult[i]['3days']
+
+# sort current list from lowest to highest 7weeks
+print color.BOLD + 'Worst 3 Movies (3 days)' + color.END 
+movieResult = sorted(movieResult, key=lambda k: k['3days'], reverse=False)
+#output result table
+for i in range(0,3):
+    print 'Film: ', movieResult[i]['title'], 'Total (3 days): ', movieResult[i]['3days']
